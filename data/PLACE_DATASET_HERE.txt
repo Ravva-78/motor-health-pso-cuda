@@ -1,0 +1,1 @@
+Run: kaggle datasets download -d shivamb/machine-predictive-maintenance-classification -p data --unzip

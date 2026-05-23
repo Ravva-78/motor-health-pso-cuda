@@ -1,0 +1,25 @@
+pso:
+  n_particles: 20
+  max_iter: 20
+  inertia_start: 0.9
+  inertia_end: 0.4
+  cognitive: 1.5
+  social: 1.5
+  bounds:
+    n_estimators:      [10, 300]
+    max_depth:         [3,  25]
+    min_samples_split: [2,  15]
+    min_samples_leaf:  [1,  10]
+model:
+  random_state: 42
+  n_jobs: -1
+  cv_folds: 5
+cuda:
+  threads_per_block: 256
+  benchmark_repeats: 50
+paths:
+  data:        data/predictive_maintenance.csv
+  model:       backend/saved_model.pkl
+  scaler:      backend/scaler.pkl
+  results:     backend/training_results.pkl
+  metrics_csv: results/metrics_export.csv

@@ -1,7 +1,7 @@
 # Technical Requirements Document (TRD)
 **Project Name:** AeroForge – Autonomous Predictive Edge AI Platform
-**Document Owner:** Chief System Architect, Distinguished Engineer (NVIDIA)
-**Review Board:** Principal Architects (Siemens, Bosch, Tesla, Microsoft, ABB)
+**Authors:** Ravva Nagarjun, Bharath Kumar T K, Fasi Owaiz Ahmed, Ahas Kaushik
+
 **Status:** APPROVED FOR ENGINEERING
 
 ---

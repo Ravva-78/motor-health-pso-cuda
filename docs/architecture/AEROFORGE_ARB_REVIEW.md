@@ -2,7 +2,7 @@
 **Project:** AeroForge – Autonomous Predictive Edge AI Platform
 **Date:** 2026-07-22
 **Status:** OFFICIAL REVIEW
-**Board Members:** 
+ 
 *   Distinguished Engineer, NVIDIA (GPU Architecture)
 *   Principal IoT Architect, Bosch (IoT & Telemetry)
 *   Staff ML Engineer, Tesla (Edge AI & TensorRT)

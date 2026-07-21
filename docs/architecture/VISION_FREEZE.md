@@ -1,30 +1,30 @@
 # Official Vision Freeze Document
 **Project:** PSO Motor Health Monitoring System
-**Role:** Chief Technology Officer (CTO) & Principal System Architect
+**Authors:** Ravva Nagarjun, Bharath Kumar T K, Fasi Owaiz Ahmed, Ahas Kaushik
 **Phase:** Vision Freeze Meeting
 
 ---
 
 ## 1. Critical Evaluation of the Proposed Flagship Innovations
 
-As your CTO, my job is to ensure we do not build a "Swiss Army Knife" that does 20 things poorly. A flagship platform must do exactly 5 things with uncompromising engineering excellence. 
+The engineering team's goal is to ensure AeroForge does not become a "Swiss Army Knife" that does 20 things poorly. A flagship platform must do exactly 5 things with uncompromising engineering excellence. 
 
-Here is my evaluation of your 5 proposed innovations:
+Here is the architectural evaluation of the 5 proposed innovations:
 
 1. **Real-Time MQTT Telemetry:** **(APPROVED)**
-   * *Verdict:* Absolutely critical. We cannot call this "Industry 4.0" if it relies on CSV uploads. MQTT is the de facto standard for industrial telemetry. It proves we understand data ingestion protocols.
+   * *Rationale:* Absolutely critical. We cannot call this "Industry 4.0" if it relies on CSV uploads. MQTT is the de facto standard for industrial telemetry. It proves we understand data ingestion protocols.
 
 2. **Explainable AI (SHAP + Root Cause Analysis):** **(APPROVED)**
-   * *Verdict:* Mandatory for trust. Plant managers will not halt a production line based on a black-box "Critical" boolean. They need cryptographic-level proof of which sensor tripped the alarm. 
+   * *Rationale:* Mandatory for trust. Plant managers will not halt a production line based on a black-box "Critical" boolean. They need cryptographic-level proof of which sensor tripped the alarm. 
 
 3. **Edge AI Deployment (TensorRT / Jetson Architecture):** **(APPROVED)**
-   * *Verdict:* The highest-value item on this list. Deploying inference to the edge proves you understand memory constraints, compilation (ONNX), and bare-metal latency. This is what separates Data Scientists from Machine Learning Engineers.
+   * *Rationale:* The highest-value item on this list. Deploying inference to the edge proves you understand memory constraints, compilation (ONNX), and bare-metal latency. This is what separates Data Scientists from Machine Learning Engineers.
 
 4. **Adaptive Self-Healing AI (Concept Drift Detection):** **(APPROVED)**
-   * *Verdict:* Brilliant. Motors age, and static models decay. Triggering our existing PSO-CUDA pipeline to re-optimize when drift is detected creates a closed-loop, autonomous system.
+   * *Rationale:* Brilliant. Motors age, and static models decay. Triggering our existing PSO-CUDA pipeline to re-optimize when drift is detected creates a closed-loop, autonomous system.
 
 5. **Digital Twin Dashboard:** **(REJECTED & REPLACED)**
-   * *Verdict:* I am rejecting "Digital Twin Dashboard" and replacing it with **Asynchronous HPC Pipelines (CUDA Streams)**.
+   * *Rationale:* I am rejecting "Digital Twin Dashboard" and replacing it with **Asynchronous HPC Pipelines (CUDA Streams)**.
    * *Why:* A "Digital Twin Dashboard" built in Streamlit is ultimately just web-development and 3D plotting. It is flashy, but it lacks hardcore engineering depth. You have already built a custom Numba CUDA kernel. We must lean into our strengths. By implementing Asynchronous CUDA Streams (overlapping CPU velocity updates with GPU fitness evaluations), we demonstrate elite-level High-Performance Computing (HPC) skills. 
    * *The Unified Vision:* We will replace "Digital Twin Dashboard" with **Asynchronous HPC Pipelines**. The dashboard will simply act as the monitoring UI for the MQTT streams and SHAP values.
 

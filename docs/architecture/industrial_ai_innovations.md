@@ -1,9 +1,9 @@
 # Industrial AI Architecture Review: PSO Motor Health Monitoring
-**From:** Principal AI Architect (NVIDIA / Siemens / Tesla)
-**To:** R&D Engineering Team
-**Subject:** Next-Generation Industry 4.0 Scaling & Deployment Strategy
+**Authors:** Ravva Nagarjun, Bharath Kumar T K, Fasi Owaiz Ahmed, Ahas Kaushik
 
-Your current implementation is a solid proof-of-concept that successfully merges heuristic optimization (PSO) with hardware acceleration (CUDA Numba) and machine learning (RF/SMOTE). However, to transition this from an academic prototype to a Tier-1 industrial system deployable in a massive automated factory, we need to completely rethink inference latency, distributed intelligence, and continuous adaptation.
+**Topic:** Next-Generation Industry 4.0 Scaling & Deployment Strategy
+
+The initial implementation is a solid proof-of-concept that successfully merges heuristic optimization (PSO) with hardware acceleration (CUDA Numba) and machine learning (RF/SMOTE). However, to transition this from an academic prototype to a Tier-1 industrial system deployable in a massive automated factory, the architecture completely rethinks inference latency, distributed intelligence, and continuous adaptation.
 
 Below are the **Top 20 Architectural Innovations**, ranked from highest immediate portfolio/industry impact to advanced theoretical R&D.
 

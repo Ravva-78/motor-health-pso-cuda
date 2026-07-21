@@ -1,7 +1,7 @@
 # Product Requirements Document (PRD)
 **Project Name:** AeroForge – Autonomous Predictive Edge AI Platform
-**Document Owner:** Senior Product Manager, Industrial Edge AI
-**Reviewers:** Principal Architects (Siemens, Bosch, Tesla, Microsoft)
+**Authors:** Ravva Nagarjun, Bharath Kumar T K, Fasi Owaiz Ahmed, Ahas Kaushik
+
 **Status:** DRAFT – PENDING APPROVAL
 
 ---

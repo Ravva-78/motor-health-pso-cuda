@@ -1,7 +1,7 @@
 # Software Architecture Design (SAD)
 **Project Name:** AeroForge – Autonomous Predictive Edge AI Platform
-**Document Owner:** Chief Software Architect & Enterprise Solution Architect
-**Review Board:** Principal Architects (Siemens, Bosch, Tesla, Microsoft, ABB)
+**Authors:** Ravva Nagarjun, Bharath Kumar T K, Fasi Owaiz Ahmed, Ahas Kaushik
+
 **Status:** APPROVED FOR ENGINEERING
 
 ---

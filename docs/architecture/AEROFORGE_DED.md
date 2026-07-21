@@ -1,6 +1,6 @@
 # Detailed Engineering Design (DED)
 **Project Name:** AeroForge – Autonomous Predictive Edge AI Platform
-**Document Owner:** Principal Engineering Manager
+**Authors:** Ravva Nagarjun, Bharath Kumar T K, Fasi Owaiz Ahmed, Ahas Kaushik
 **Reference Documents:** Vision Freeze, PRD, TRD, SAD
 **Status:** IMPLEMENTATION READY
 

@@ -1,6 +1,6 @@
 # Engineering Program Initialization (EPI)
 **Project Name:** AeroForge – Autonomous Predictive Edge AI Platform
-**Document Owner:** Director of Engineering
+**Authors:** Ravva Nagarjun, Bharath Kumar T K, Fasi Owaiz Ahmed, Ahas Kaushik
 **Reference Base:** Vision Freeze, PRD, TRD, SAD, DED, ARB
 **Status:** PROGRAM LAUNCHED
 

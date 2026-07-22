@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: aeroforge_mqtt
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  daemon:
+    build: .
+    container_name: aeroforge_daemon
+    command: python backend/backend_daemon.py
+    environment:
+      - MQTT_BROKER=mosquitto
+      - IPC_ADDRESS=tcp://0.0.0.0:5555
+      - PYTHONPATH=/app
+    ports:
+      - "5555:5555"
+    depends_on:
+      - mosquitto
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  api:
+    build: .
+    container_name: aeroforge_api
+    command: uvicorn backend.api_server:app --host 0.0.0.0 --port 8000
+    environment:
+      - IPC_ADDRESS=tcp://daemon:5555
+    ports:
+      - "8000:8000"
+    depends_on:
+      - daemon
+
+  frontend:
+    build: .
+    container_name: aeroforge_dashboard
+    command: streamlit run app.py --server.port=8501 --server.address=0.0.0.0
+    environment:
+      - API_URL=http://api:8000
+    ports:
+      - "8501:8501"
+    depends_on:
+      - api

@@ -20,6 +20,7 @@ class DriftDetector:
         self.feature_names = ['temperature_air', 'temperature_process', 'speed_rpm', 'torque', 'tool_wear']
         self.baseline_hists = {}
         self.baseline_bins = {}
+        self.last_report = {"drift_detected": False, "score": 0.0, "affected_features": [], "reason": "System initializing"}
         
         if self.enabled:
             self._initialize_baseline(data_path)
@@ -109,15 +110,24 @@ class DriftDetector:
                     
             if len(affected_features) > 0:
                 logger.warning(f"[DRIFT DETECTED] PSI={max_psi:.4f} > {self.psi_threshold} on features {affected_features}")
-                return {
+                report = {
                     "drift_detected": True,
                     "score": float(round(max_psi, 4)),
                     "affected_features": affected_features,
                     "reason": "Feature distribution drift (PSI threshold exceeded)"
                 }
+                self.last_report = report
+                return report
                 
-            return {"drift_detected": False}
+            report = {"drift_detected": False, "score": float(round(max_psi, 4)), "affected_features": [], "reason": "Normal"}
+            self.last_report = report
+            return report
             
         except Exception as e:
             logger.error(f"Error during drift monitoring: {e}")
-            return {"drift_detected": False, "error": str(e)}
+            report = {"drift_detected": False, "error": str(e)}
+            self.last_report = report
+            return report
+
+    def get_latest_report(self) -> dict:
+        return self.last_report

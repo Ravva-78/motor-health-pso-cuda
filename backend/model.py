@@ -8,7 +8,7 @@ VERSION 3.1:
   - XGBoost + K-Fold CV retained
 
 SCL + PAG AAT | Sem 6 AIML | BMSCE
-Team: Ravva Nagarjun, Bharath Kumar T K, Fasi Owaiz Ahmed, Ahas Kaushik
+Team: Ravva Nagarjun
 """
 
 import numpy as np

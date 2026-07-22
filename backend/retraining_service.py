@@ -15,6 +15,14 @@ class RetrainingService:
         self.inference_service = inference_service
         self.shap_service = shap_service
         self._retraining_lock = threading.Lock()
+        self._is_retraining = False
+        self._last_retraining_time = None
+        
+    def is_retraining(self) -> bool:
+        return self._is_retraining
+        
+    def get_last_retraining_time(self) -> str:
+        return self._last_retraining_time
         
     def trigger_retraining(self, drift_report: dict):
         if self._retraining_lock.locked():
@@ -27,6 +35,7 @@ class RetrainingService:
         
     def _run_retraining(self, drift_report: dict):
         with self._retraining_lock:
+            self._is_retraining = True
             logger.info(f"Starting async PSO retraining due to drift: {drift_report.get('reason', 'Unknown')}")
             try:
                 # Set up environment to ensure main_training.py finds the 'backend' package
@@ -61,3 +70,7 @@ class RetrainingService:
                     
             except Exception as e:
                 logger.error(f"Exception during async retraining execution: {e}")
+            finally:
+                self._is_retraining = False
+                import datetime
+                self._last_retraining_time = datetime.datetime.now().isoformat()

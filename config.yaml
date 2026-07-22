@@ -41,6 +41,6 @@ paths:
   metrics_csv: results/metrics_export.csv
 drift:
   enabled: true
-  window_size: 500
+  window_size: 15
   psi_threshold: 0.1
   jsd_threshold: 0.1

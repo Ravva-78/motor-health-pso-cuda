@@ -8,6 +8,8 @@ from backend.mqtt_client import MQTTTelemetryClient
 from backend.ring_buffer import RingBuffer
 from backend.telemetry_manager import TelemetryManager
 from backend.ipc.server import IPCServer
+from backend.inference_service import InferenceService
+from backend.shap_service import SHAPService
 
 logger = get_logger("backend_daemon")
 
@@ -24,8 +26,13 @@ class BackendDaemon:
         self.mqtt_client = MQTTTelemetryClient(config.get_mqtt_config())
         self.telemetry_manager = TelemetryManager(self.mqtt_client, self.ring_buffer)
         
+        # Initialize Inference & SHAP
+        self.inference_service = InferenceService()
+        self.shap_service = SHAPService()
+        
         ipc_config = config.get_ipc_config()
-        self.ipc_server = IPCServer(ipc_config['address'], self.ring_buffer)
+        self.ipc_server = IPCServer(ipc_config['address'], self.ring_buffer, 
+                                    self.inference_service, self.shap_service)
         
         # Setup signals
         try:

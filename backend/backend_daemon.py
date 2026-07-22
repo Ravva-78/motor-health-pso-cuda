@@ -7,6 +7,7 @@ from backend.logger import get_logger
 from backend.mqtt_client import MQTTTelemetryClient
 from backend.ring_buffer import RingBuffer
 from backend.telemetry_manager import TelemetryManager
+from backend.ipc.server import IPCServer
 
 logger = get_logger("backend_daemon")
 
@@ -22,6 +23,9 @@ class BackendDaemon:
         self.ring_buffer = RingBuffer(capacity=config.get_ring_buffer_config()['capacity'])
         self.mqtt_client = MQTTTelemetryClient(config.get_mqtt_config())
         self.telemetry_manager = TelemetryManager(self.mqtt_client, self.ring_buffer)
+        
+        ipc_config = config.get_ipc_config()
+        self.ipc_server = IPCServer(ipc_config['address'], self.ring_buffer)
         
         # Setup signals
         try:
@@ -71,6 +75,7 @@ class BackendDaemon:
         
         try:
             self.mqtt_client.connect()
+            self.ipc_server.start()
             
             # Start health monitor thread
             self.health_thread = threading.Thread(target=self.health_monitor, daemon=True)
@@ -94,6 +99,12 @@ class BackendDaemon:
         self._shutdown_called = True
         logger.info("Shutting down Backend Daemon...")
         self.running = False
+        
+        try:
+            self.ipc_server.stop()
+        except Exception as e:
+            logger.error(f"Error stopping IPC server: {e}")
+            
         try:
             self.mqtt_client.disconnect()
         except Exception as e:

@@ -18,6 +18,10 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
 from backend.cuda_module import gpu_accuracy
+from backend.logger import get_logger
+from backend.constants import PSO_DEFAULT_BOUNDS
+
+logger = get_logger(__name__)
 
 
 class PSOOptimizer:
@@ -35,12 +39,7 @@ class PSOOptimizer:
     use_gpu      : if True, use CUDA kernel for fitness; else CPU
     """
 
-    # Search space bounds: [n_estimators, max_depth, min_samples_split]
-    BOUNDS = {
-        'n_estimators':      (10,  300),
-        'max_depth':         (3,   25),
-        'min_samples_split': (2,   15),
-    }
+    BOUNDS = PSO_DEFAULT_BOUNDS
     KEYS = list(BOUNDS.keys())
     DIM  = len(KEYS)
 
@@ -101,8 +100,7 @@ class PSOOptimizer:
 
         mode = "GPU (CUDA)" if self.use_gpu else "CPU"
         if verbose:
-            print(f'\nPSO Optimisation [{mode}]')
-            print('─' * 45)
+            logger.info(f'PSO Optimisation [{mode}] started')
 
         start_time = time.perf_counter()
 
@@ -127,9 +125,7 @@ class PSOOptimizer:
             self.history.append(float(gbest_f))
 
             if verbose:
-                print(f'  Iter {it+1:02d}/{self.max_iter}  |  '
-                      f'Best Accuracy [{mode}]: {gbest_f:.4f}  |  '
-                      f'Params: {self._decode(gbest)}')
+                logger.info(f'Iter {it+1:02d}/{self.max_iter} | Best Accuracy [{mode}]: {gbest_f:.4f} | Params: {self._decode(gbest)}')
 
         elapsed = time.perf_counter() - start_time
         self.best_params = self._decode(gbest)
@@ -137,8 +133,8 @@ class PSOOptimizer:
         self.elapsed     = elapsed
 
         if verbose:
-            print(f'\n✅ PSO done in {elapsed:.2f}s')
-            print(f'   Best params : {self.best_params}')
-            print(f'   Best val acc: {self.best_score:.4f}')
+            logger.info(f'PSO done in {elapsed:.2f}s')
+            logger.info(f'Best params : {self.best_params}')
+            logger.info(f'Best val acc: {self.best_score:.4f}')
 
         return self.best_params

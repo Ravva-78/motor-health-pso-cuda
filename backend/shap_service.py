@@ -27,6 +27,22 @@ class SHAPService:
             logger.error(f"Failed to initialize SHAP explainer: {e}")
             self.explainer = None
 
+    def reload_model(self):
+        logger.info("Hot-swapping SHAP TreeExplainer...")
+        try:
+            with open(self.pickle_path, 'rb') as f:
+                model = pickle.load(f)
+                
+            new_explainer = shap.TreeExplainer(model)
+            
+            # Atomic pointer swap
+            self.explainer = new_explainer
+            logger.info("SHAP Explainer hot-swap complete.")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to hot-swap SHAP explainer: {e}")
+            return False
+
     def explain(self, features: list, predicted_label: int) -> dict:
         """
         Calculates SHAP values for the specific input.

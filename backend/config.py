@@ -93,4 +93,13 @@ class ConfigManager:
             'metrics_csv': os.environ.get('PATH_METRICS_CSV', paths_cfg.get('metrics_csv', 'results/metrics_export.csv')),
         }
 
+    def get_drift_config(self) -> dict:
+        drift_cfg = self.config.get('drift', {})
+        return {
+            'enabled': bool(os.environ.get('DRIFT_ENABLED', drift_cfg.get('enabled', True))),
+            'window_size': int(os.environ.get('DRIFT_WINDOW_SIZE', drift_cfg.get('window_size', 500))),
+            'psi_threshold': float(os.environ.get('DRIFT_PSI_THRESHOLD', drift_cfg.get('psi_threshold', 0.1))),
+            'jsd_threshold': float(os.environ.get('DRIFT_JSD_THRESHOLD', drift_cfg.get('jsd_threshold', 0.1))),
+        }
+
 config = ConfigManager()

@@ -18,10 +18,9 @@ import pickle
 import os
 import sys
 import time
-import sys
-import time
 from backend.logger import get_logger
 from backend.config import config
+from backend.onnx_exporter import ModelExporter
 
 logger = get_logger('main_training')
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -145,7 +144,16 @@ def main():
     logger.info(f"Features       : {len(feature_names)} (as per research paper)")
     logger.info(f"Best Params    : {best_params}")
     logger.info(f"Metrics  → {metrics_csv}")
-    logger.info("Pipeline complete.")
+    
+    # ONNX Export and Parity Check
+    logger.info("Exporting to ONNX...")
+    onnx_path = 'backend/model.onnx'
+    if ModelExporter.export_to_onnx(results['model'], onnx_path):
+        ModelExporter.validate_parity(results['model'], onnx_path)
+    else:
+        logger.error("ONNX Export failed. Skipping parity check.")
+        
+    logger.info("Training pipeline complete.")
 
 
 if __name__ == '__main__':

@@ -30,6 +30,9 @@ mqtt:
   max_reconnect_delay: 120
 ring_buffer:
   capacity: 4096
+ipc:
+  address: "tcp://127.0.0.1:5555"
+  timeout_ms: 2000
 paths:
   data:        data/predictive_maintenance.csv
   model:       backend/saved_model.pkl

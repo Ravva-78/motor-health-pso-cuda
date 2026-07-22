@@ -76,6 +76,13 @@ class ConfigManager:
             'capacity': int(os.environ.get('RING_BUFFER_CAPACITY', rb_cfg.get('capacity', 4096)))
         }
 
+    def get_ipc_config(self) -> dict:
+        ipc_cfg = self.config.get('ipc', {})
+        return {
+            'address': str(os.environ.get('IPC_ADDRESS', ipc_cfg.get('address', 'tcp://127.0.0.1:5555'))),
+            'timeout_ms': int(os.environ.get('IPC_TIMEOUT_MS', ipc_cfg.get('timeout_ms', 2000)))
+        }
+
     def get_paths(self) -> dict:
         paths_cfg = self.config.get('paths', {})
         return {

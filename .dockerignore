@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.venv
+.pytest_cache/
+.trt_cache/
+.git/
+.github/
+.streamlit/
+results/
+tests/
+scripts/

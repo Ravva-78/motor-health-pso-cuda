@@ -1,6 +1,21 @@
+
+# Revision 2 (v1.1 / Rev-B) - Final Engineering Audit
+**Date**: July 2026
+**Status**: Synchronized with Repository Truth (v1.0.0 RC-1)
+
+## Revision History
+* **Rev-A (Original)**: Initial architecture and requirements freeze.
+* **Rev-B (v1.1)**: Final Engineering Audit synchronization. Reflects actual implementation truth over initial design assumptions.
+
+## Repository Truth Alignment (Rev-B)
+* **Docker/Deployment**: Scaffolded but pending full production validation.
+* **Hardware Acceleration (TensorRT/CUDA)**: Implemented dynamically. Code attempts to bind to TensorRT and CUDA via ONNX/Numba, but falls back to CPU if drivers are absent. Hardware execution was not validated in the CI test suite.
+* **ML Pipeline**: Fully implemented and validated via unit tests (Inference, SHAP, Drift, Retraining).
+---
+
 # Software Architecture Design (SAD)
 **Project Name:** AeroForge – Autonomous Predictive Edge AI Platform
-**Authors:** Ravva Nagarjun, Bharath Kumar T K, Fasi Owaiz Ahmed, Ahas Kaushik
+**Authors:** Ravva Nagarjun
 
 **Status:** APPROVED FOR ENGINEERING
 

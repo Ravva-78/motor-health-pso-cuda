@@ -4,9 +4,6 @@ Dark Glassmorphism Edition
 
 Team:
   Ravva Nagarjun    (1BM24AI414)
-  Bharath Kumar T K
-  Fasi Owaiz Ahmed
-  Ahas Kaushik
 
 SCL + PAG AAT | Sem 6 AIML | BMSCE Bengaluru
 """
@@ -261,9 +258,6 @@ def dark_layout(**kwargs):
 # ── Constants ─────────────────────────────────────────────────────────────────
 TEAM = [
     ("Ravva Nagarjun",    "1BM24AI414", "Lead"),
-    ("Bharath Kumar T K", "AIML",       "CUDA"),
-    ("Fasi Owaiz Ahmed",  "AIML",       "ML"),
-    ("Ahas Kaushik",      "AIML",       "Data"),
 ]
 LABEL_NAMES = {0: 'Normal', 1: 'Warning', 2: 'Critical'}
 C_NORM  = '#4ade80'
@@ -1409,8 +1403,7 @@ Data Flow:
       <span style='font-family:Space Grotesk;font-weight:600;color:#e8e0ff'>
         PSO Motor Health Monitoring v3
       </span><br/>
-      Ravva Nagarjun &nbsp;·&nbsp; Bharath Kumar T K &nbsp;·&nbsp;
-      Fasi Owaiz Ahmed &nbsp;·&nbsp; Ahas Kaushik<br/>
+      Ravva Nagarjun<br/>
       Sem 6 AIML &nbsp;·&nbsp; BMSCE Bengaluru &nbsp;·&nbsp; SCL + PAG AAT &nbsp;·&nbsp; 2026<br/>
       <span style='color:#a78bfa'>🌱 UN SDG 9 — Industry, Innovation and Infrastructure</span>
     </div>

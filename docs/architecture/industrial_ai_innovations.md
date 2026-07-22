@@ -1,5 +1,5 @@
 # Industrial AI Architecture Review: PSO Motor Health Monitoring
-**Authors:** Ravva Nagarjun, Bharath Kumar T K, Fasi Owaiz Ahmed, Ahas Kaushik
+**Authors:** Ravva Nagarjun
 
 **Topic:** Next-Generation Industry 4.0 Scaling & Deployment Strategy
 

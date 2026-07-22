@@ -16,38 +16,17 @@ Health Classes:
   2 = Critical — Heat Dissipation / Overstrain / Random
 
 SCL + PAG AAT | Sem 6 AIML | BMSCE
-Team: Ravva Nagarjun, Bharath Kumar T K, Fasi Owaiz Ahmed, Ahas Kaushik
+Team: Ravva Nagarjun
 """
 
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
-import logging
+from backend.logger import get_logger
+from backend.constants import FEATURE_COLS, FEATURE_NAMES, LABEL_MAP_DICT
 
-logger = logging.getLogger(__name__)
-
-FEATURE_COLS = [
-    'Air temperature [K]',
-    'Process temperature [K]',
-    'Rotational speed [rpm]',
-    'Torque [Nm]',
-    'Tool wear [min]',
-]
-
-RENAME_MAP = {
-    'Air temperature [K]':      'temperature_air',
-    'Process temperature [K]':  'temperature_process',
-    'Rotational speed [rpm]':   'speed_rpm',
-    'Torque [Nm]':              'torque',
-    'Tool wear [min]':          'tool_wear',
-}
-
-FEATURE_NAMES = ['temperature_air', 'temperature_process',
-                 'speed_rpm', 'torque', 'tool_wear']
-
-LABEL_NAMES = {0: 'Normal', 1: 'Warning', 2: 'Critical'}
-
+logger = get_logger(__name__)
 
 def _map_label(row) -> int:
     ft = str(row.get('Failure Type', 'No Failure')).strip()
@@ -66,27 +45,36 @@ def load_and_preprocess(csv_path: str, use_smote: bool = True):
     SMOTE applied to training set to fix class imbalance.
     """
     logger.info(f"Loading dataset: {csv_path}")
-    print(f"\n[1/5] Loading dataset from {csv_path} ...")
-    df = pd.read_csv(csv_path)
-    print(f"      Raw shape : {df.shape}")
-    print(f"      Columns   : {list(df.columns)}")
+    logger.info(f"[1/5] Loading dataset from {csv_path} ...")
+    try:
+        df = pd.read_csv(csv_path)
+    except FileNotFoundError as e:
+        logger.error(f"Dataset not found: {e}")
+        raise
+    except pd.errors.EmptyDataError as e:
+        logger.error(f"Dataset is empty: {e}")
+        raise
+        
+    logger.debug(f"Raw shape : {df.shape}")
+    logger.debug(f"Columns   : {list(df.columns)}")
 
     missing = [c for c in FEATURE_COLS if c not in df.columns]
     if missing:
+        logger.error(f"Missing columns: {missing}")
         raise ValueError(f"Missing columns: {missing}")
 
-    print("[2/5] Cleaning data ...")
+    logger.info("[2/5] Cleaning data ...")
     df = df.dropna(subset=FEATURE_COLS + ['Failure Type'])
-    print(f"      Shape after dropna: {df.shape}")
+    logger.debug(f"Shape after dropna: {df.shape}")
 
-    print("[3/5] Mapping failure types to health classes ...")
+    logger.info("[3/5] Mapping failure types to health classes ...")
     df['label'] = df.apply(_map_label, axis=1)
 
     X_raw = df[FEATURE_COLS].values
     y     = df['label'].values
 
-    print("[4/5] Normalising features (MinMaxScaler) ...")
-    print("[5/5] Stratified 80/20 train/test split ...")
+    logger.info("[4/5] Normalising features (MinMaxScaler) ...")
+    logger.info("[5/5] Stratified 80/20 train/test split ...")
     X_train_raw, X_test_raw, y_train, y_test = train_test_split(
         X_raw, y, test_size=0.2, random_state=42, stratify=y
     )
@@ -102,25 +90,24 @@ def load_and_preprocess(csv_path: str, use_smote: bool = True):
             sm = SMOTE(random_state=42, k_neighbors=3)
             X_train, y_train = sm.fit_resample(X_train, y_train)
             after  = dict(zip(*np.unique(y_train, return_counts=True)))
-            print(f"\n  ✅ SMOTE applied:")
-            print(f"     Before: {before}")
-            print(f"     After : {after}")
+            logger.info("SMOTE applied.")
+            logger.info(f"Before: {before}")
+            logger.info(f"After : {after}")
         except ImportError:
-            print("  ⚠️  imbalanced-learn not found. Run: pip install imbalanced-learn")
+            logger.warning("imbalanced-learn not found. Run: pip install imbalanced-learn")
 
     # ── Summary ────────────────────────────────────────────────────────────────
     unique, counts = np.unique(y, return_counts=True)
-    print("\n── Dataset Summary ──────────────────────────────────────")
-    print(f"  Train samples : {len(X_train)}")
-    print(f"  Test  samples : {len(X_test)}")
-    print(f"  Features      : {FEATURE_NAMES}")
-    print(f"  Label counts  :")
+    logger.info("── Dataset Summary ──────────────────────────────────────")
+    logger.info(f"Train samples : {len(X_train)}")
+    logger.info(f"Test  samples : {len(X_test)}")
+    logger.info(f"Features      : {FEATURE_NAMES}")
     for k, v in zip(unique, counts):
-        print(f"    {LABEL_NAMES[k]:10s} : {v:>5} samples ({v/len(y)*100:.1f}%)")
-    print("─────────────────────────────────────────────────────────")
+        logger.info(f"{LABEL_MAP_DICT[k]:10s} : {v:>5} samples ({v/len(y)*100:.1f}%)")
+    logger.info("─────────────────────────────────────────────────────────")
 
     df_clean         = df[FEATURE_COLS + ['label']].copy()
     df_clean.columns = FEATURE_NAMES + ['label']
-    df_clean['health'] = df_clean['label'].map(LABEL_NAMES)
+    df_clean['health'] = df_clean['label'].map(LABEL_MAP_DICT)
 
     return X_train, X_test, y_train, y_test, FEATURE_NAMES, scaler, df_clean

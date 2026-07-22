@@ -17,9 +17,30 @@ model:
 cuda:
   threads_per_block: 256
   benchmark_repeats: 50
+mqtt:
+  broker: localhost
+  port: 1883
+  username: null
+  password: null
+  qos: 1
+  topics:
+    - "aeroforge/telemetry"
+  client_id: aeroforge_backend
+  min_reconnect_delay: 1
+  max_reconnect_delay: 120
+ring_buffer:
+  capacity: 4096
+ipc:
+  address: "tcp://127.0.0.1:5555"
+  timeout_ms: 2000
 paths:
   data:        data/predictive_maintenance.csv
   model:       backend/saved_model.pkl
   scaler:      backend/scaler.pkl
   results:     backend/training_results.pkl
   metrics_csv: results/metrics_export.csv
+drift:
+  enabled: true
+  window_size: 15
+  psi_threshold: 0.1
+  jsd_threshold: 0.1

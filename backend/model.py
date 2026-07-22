@@ -8,7 +8,7 @@ VERSION 3.1:
   - XGBoost + K-Fold CV retained
 
 SCL + PAG AAT | Sem 6 AIML | BMSCE
-Team: Ravva Nagarjun, Bharath Kumar T K, Fasi Owaiz Ahmed, Ahas Kaushik
+Team: Ravva Nagarjun
 """
 
 import numpy as np
@@ -32,10 +32,10 @@ except ImportError:
     _XGB = False
 
 from backend.cuda_module import gpu_accuracy
+from backend.logger import get_logger
+from backend.constants import LABEL_NAMES_LIST
 
-logger = logging.getLogger(__name__)
-
-LABEL_NAMES = ['Normal', 'Warning', 'Critical']
+logger = get_logger(__name__)
 
 
 def train_baselines(X_train, X_test, y_train, y_test,
@@ -54,7 +54,7 @@ def train_baselines(X_train, X_test, y_train, y_test,
                                      random_state=42, eval_metric='mlogloss',
                                      use_label_encoder=False, verbosity=0))]
          if _XGB else []):
-        print(f"  Training {name} ...")
+        logger.info(f"Training {name} ...")
         clf.fit(X_train, y_train)
         preds  = clf.predict(X_test)
         cv_sc  = cross_val_score(clf, Xc, yc, cv=cv, scoring='accuracy')
@@ -65,8 +65,7 @@ def train_baselines(X_train, X_test, y_train, y_test,
             'cv_std':   float(cv_sc.std()),
             'preds':    preds,
         }
-        print(f"    {name:25s}: {bas[name]['acc']*100:.2f}%  "
-              f"(CV: {bas[name]['cv_mean']*100:.2f}% ± {bas[name]['cv_std']*100:.2f}%)")
+        logger.info(f"{name:25s}: {bas[name]['acc']*100:.2f}% (CV: {bas[name]['cv_mean']*100:.2f}% ± {bas[name]['cv_std']*100:.2f}%)")
     return bas
 
 
@@ -83,7 +82,7 @@ def train_final(best_params, X_train, X_test, y_train, y_test,
     rec  = recall_score   (y_test, preds, average='weighted', zero_division=0)
     f1   = f1_score       (y_test, preds, average='weighted', zero_division=0)
     cm   = confusion_matrix(y_test, preds)
-    rep  = classification_report(y_test, preds, target_names=LABEL_NAMES)
+    rep  = classification_report(y_test, preds, target_names=LABEL_NAMES_LIST)
     pcr  = recall_score(y_test, preds, average=None, zero_division=0)
 
     cv_strat  = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=42)
@@ -107,19 +106,17 @@ def train_final(best_params, X_train, X_test, y_train, y_test,
         'best_params':        best_params,
     }
 
-    print('\n' + '='*55)
-    print('  FINAL MODEL SUMMARY — PSO-Optimised Random Forest')
-    print('='*55)
-    print(f'  PSO Params     : {best_params}')
-    print(f'  Accuracy       : {acc*100:.2f}%')
-    print(f'  Precision      : {prec*100:.2f}%')
-    print(f'  Recall         : {rec*100:.2f}%')
-    print(f'  F1 Score       : {f1*100:.2f}%')
-    print(f'  {cv_folds}-Fold CV     : {cv_scores.mean()*100:.2f}% ± {cv_scores.std()*100:.2f}%')
-    print(f'\n  Per-Class Recall:')
-    for name, val in zip(LABEL_NAMES, pcr):
-        print(f'    {name:10s}: {val*100:.1f}%')
-    print(f'\n{rep}')
+    logger.info("FINAL MODEL SUMMARY — PSO-Optimised Random Forest")
+    logger.info(f"PSO Params     : {best_params}")
+    logger.info(f"Accuracy       : {acc*100:.2f}%")
+    logger.info(f"Precision      : {prec*100:.2f}%")
+    logger.info(f"Recall         : {rec*100:.2f}%")
+    logger.info(f"F1 Score       : {f1*100:.2f}%")
+    logger.info(f"{cv_folds}-Fold CV     : {cv_scores.mean()*100:.2f}% ± {cv_scores.std()*100:.2f}%")
+    logger.info("Per-Class Recall:")
+    for name, val in zip(LABEL_NAMES_LIST, pcr):
+        logger.info(f"{name:10s}: {val*100:.1f}%")
+    logger.info(f"\n{rep}")
     return results
 
 
@@ -146,8 +143,8 @@ def export_metrics_csv(results, baselines, output_path='results/metrics_export.c
     })
     df = pd.DataFrame(rows)
     df.to_csv(output_path, index=False)
-    print(f"\n✅ Metrics exported → {output_path}")
-    print(df.to_string(index=False))
+    logger.info(f"Metrics exported → {output_path}")
+    logger.debug(df.to_string(index=False))
     return df
 
 
@@ -155,16 +152,30 @@ def save_model(model, scaler, paths=None):
     mp = (paths or {}).get('model',  'backend/saved_model.pkl')
     sp = (paths or {}).get('scaler', 'backend/scaler.pkl')
     os.makedirs(os.path.dirname(mp), exist_ok=True)
-    pickle.dump(model,  open(mp, 'wb'))
-    pickle.dump(scaler, open(sp, 'wb'))
-    print(f'  Model saved  → {mp}')
-    print(f'  Scaler saved → {sp}')
+    try:
+        with open(mp, 'wb') as f:
+            pickle.dump(model, f)
+        with open(sp, 'wb') as f:
+            pickle.dump(scaler, f)
+        logger.info(f'Model saved  → {mp}')
+        logger.info(f'Scaler saved → {sp}')
+    except IOError as e:
+        logger.error(f"Failed to save model or scaler: {e}")
+        raise
 
 
 def load_model(paths=None):
     mp = (paths or {}).get('model',  'backend/saved_model.pkl')
     sp = (paths or {}).get('scaler', 'backend/scaler.pkl')
-    return pickle.load(open(mp, 'rb')), pickle.load(open(sp, 'rb'))
+    try:
+        with open(mp, 'rb') as f:
+            model = pickle.load(f)
+        with open(sp, 'rb') as f:
+            scaler = pickle.load(f)
+        return model, scaler
+    except FileNotFoundError as e:
+        logger.error(f"Could not load model or scaler: {e}")
+        raise
 
 
 
@@ -181,7 +192,7 @@ def predict_single(model, scaler, input_dict: dict) -> dict:
     x_scaled = scaler.transform(x)
     label    = int(model.predict(x_scaled)[0])
     proba    = model.predict_proba(x_scaled)[0].tolist()
-    health   = ['Normal', 'Warning', 'Critical'][label]
+    health   = LABEL_NAMES_LIST[label]
 
     return {
         'label':         label,

@@ -15,3 +15,9 @@
 17:08:00  INFO      backend.preprocessing — [1/5] Loading dataset from completely_nonexistent_file.csv ...
 17:08:00  ERROR     backend.preprocessing — Dataset not found: [Errno 2] No such file or directory: 'completely_nonexistent_file.csv'
 17:08:02  INFO      smoke_test — Smoke test log entry
+17:18:59  INFO      backend.mqtt_client — Connecting to MQTT broker at localhost:1883
+17:18:59  INFO      backend.mqtt_client — Disconnecting from MQTT broker...
+17:18:59  INFO      backend.mqtt_client — Successfully connected to MQTT broker.
+17:18:59  INFO      backend.mqtt_client — Subscribing to topic: test/topic
+17:18:59  INFO      backend.mqtt_client — Received valid JSON telemetry on topic test/topic
+17:18:59  ERROR     backend.mqtt_client — Invalid JSON received on topic test/topic: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)

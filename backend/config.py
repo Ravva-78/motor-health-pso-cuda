@@ -56,6 +56,20 @@ class ConfigManager:
             'benchmark_repeats': int(os.environ.get('CUDA_BENCHMARK_REPEATS', cuda_cfg.get('benchmark_repeats', 50))),
         }
 
+    def get_mqtt_config(self) -> dict:
+        mqtt_cfg = self.config.get('mqtt', {})
+        return {
+            'broker': str(os.environ.get('MQTT_BROKER', mqtt_cfg.get('broker', 'localhost'))),
+            'port': int(os.environ.get('MQTT_PORT', mqtt_cfg.get('port', 1883))),
+            'username': os.environ.get('MQTT_USERNAME', mqtt_cfg.get('username', None)),
+            'password': os.environ.get('MQTT_PASSWORD', mqtt_cfg.get('password', None)),
+            'qos': int(os.environ.get('MQTT_QOS', mqtt_cfg.get('qos', 1))),
+            'topics': mqtt_cfg.get('topics', ['aeroforge/telemetry']),
+            'client_id': os.environ.get('MQTT_CLIENT_ID', mqtt_cfg.get('client_id', 'aeroforge_backend')),
+            'min_reconnect_delay': int(os.environ.get('MQTT_MIN_RECONNECT_DELAY', mqtt_cfg.get('min_reconnect_delay', 1))),
+            'max_reconnect_delay': int(os.environ.get('MQTT_MAX_RECONNECT_DELAY', mqtt_cfg.get('max_reconnect_delay', 120))),
+        }
+
     def get_paths(self) -> dict:
         paths_cfg = self.config.get('paths', {})
         return {

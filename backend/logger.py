@@ -10,7 +10,7 @@ def get_logger(name: str) -> logging.Logger:
     logger = logging.getLogger(name)
     
     # Avoid adding multiple handlers if logger is already configured
-    if logger.hasHandlers():
+    if logger.handlers:
         return logger
 
     # Ensure results directory exists for log file

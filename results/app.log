@@ -174,3 +174,34 @@ weighted avg       0.98      0.97      0.97      2000
 18:00:38  INFO      backend.onnx_exporter — Model exported to ONNX successfully at backend/model.onnx
 18:00:38  INFO      backend.onnx_exporter — Prediction parity validated successfully on 100 samples.
 18:00:38  INFO      main_training — Training pipeline complete.
+18:19:43  INFO      backend.drift_detector — Initializing DriftDetector baseline from training data...
+18:19:43  INFO      backend.drift_detector — DriftDetector baseline initialized successfully.
+18:19:43  INFO      backend.drift_detector — Initializing DriftDetector baseline from training data...
+18:19:43  INFO      backend.drift_detector — DriftDetector baseline initialized successfully.
+18:19:43  WARNING   backend.drift_detector — [DRIFT DETECTED] PSI=9.9251 > 0.1 on features ['temperature_air', 'temperature_process']
+18:19:44  INFO      backend.drift_detector — Initializing DriftDetector baseline from training data...
+18:19:44  INFO      backend.drift_detector — DriftDetector baseline initialized successfully.
+18:19:44  WARNING   backend.drift_detector — [DRIFT DETECTED] PSI=15.3701 > 0.1 on features ['temperature_air', 'temperature_process', 'speed_rpm', 'torque', 'tool_wear']
+18:19:44  INFO      backend.drift_detector — Initializing DriftDetector baseline from training data...
+18:19:44  INFO      backend.drift_detector — DriftDetector baseline initialized successfully.
+18:19:44  INFO      backend.retraining_service — Starting async PSO retraining due to drift: Test Drift
+18:19:44  INFO      backend.retraining_service — Async PSO retraining completed successfully. Triggering atomic model swap.
+18:19:44  INFO      backend.retraining_service — Starting async PSO retraining due to drift: Test Failure
+18:19:44  ERROR     backend.retraining_service — Async retraining failed with exit code 1.
+18:19:44  ERROR     backend.retraining_service — Error tail:
+Traceback...
+18:20:12  INFO      backend.drift_detector — Initializing DriftDetector baseline from training data...
+18:20:12  INFO      backend.drift_detector — DriftDetector baseline initialized successfully.
+18:20:12  INFO      backend.drift_detector — Initializing DriftDetector baseline from training data...
+18:20:12  INFO      backend.drift_detector — DriftDetector baseline initialized successfully.
+18:20:12  INFO      backend.drift_detector — Initializing DriftDetector baseline from training data...
+18:20:12  INFO      backend.drift_detector — DriftDetector baseline initialized successfully.
+18:20:12  WARNING   backend.drift_detector — [DRIFT DETECTED] PSI=15.3701 > 0.1 on features ['temperature_air', 'temperature_process', 'speed_rpm', 'torque', 'tool_wear']
+18:20:12  INFO      backend.drift_detector — Initializing DriftDetector baseline from training data...
+18:20:12  INFO      backend.drift_detector — DriftDetector baseline initialized successfully.
+18:20:12  INFO      backend.retraining_service — Starting async PSO retraining due to drift: Test Drift
+18:20:12  INFO      backend.retraining_service — Async PSO retraining completed successfully. Triggering atomic model swap.
+18:20:13  INFO      backend.retraining_service — Starting async PSO retraining due to drift: Test Failure
+18:20:13  ERROR     backend.retraining_service — Async retraining failed with exit code 1.
+18:20:13  ERROR     backend.retraining_service — Error tail:
+Traceback...

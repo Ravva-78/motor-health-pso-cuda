@@ -46,6 +46,38 @@ class InferenceService:
             logger.error(f"Failed to initialize Inference Engine: {e}")
             raise
 
+    def reload_model(self):
+        logger.info("Hot-swapping Inference Engine...")
+        so = rt.SessionOptions()
+        so.graph_optimization_level = rt.GraphOptimizationLevel.ORT_ENABLE_ALL
+        providers = [
+            ('TensorrtExecutionProvider', {
+                'trt_engine_cache_enable': True,
+                'trt_engine_cache_path': 'backend/.trt_cache',
+                'trt_fp16_enable': True,
+            }),
+            'CUDAExecutionProvider',
+            'CPUExecutionProvider'
+        ]
+        try:
+            # Build new session first to not interrupt current inference requests
+            new_session = rt.InferenceSession(self.model_path, so, providers=providers)
+            input_name = new_session.get_inputs()[0].name
+            
+            # Warm-up new engine
+            logger.info("Running TensorRT warm-up inference for new engine...")
+            dummy_input = np.zeros((1, 5), dtype=np.float32)
+            new_session.run(None, {input_name: dummy_input})
+            
+            # Atomic pointer swap
+            self.session = new_session
+            self.input_name = input_name
+            logger.info("Inference Engine hot-swap complete.")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to hot-swap Inference Engine: {e}")
+            return False
+
     def predict(self, features: list) -> dict:
         """
         Executes a prediction using the active Execution Provider (TensorRT > CUDA > CPU).

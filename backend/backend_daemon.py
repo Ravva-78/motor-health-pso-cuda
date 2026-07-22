@@ -10,6 +10,8 @@ from backend.telemetry_manager import TelemetryManager
 from backend.ipc.server import IPCServer
 from backend.inference_service import InferenceService
 from backend.shap_service import SHAPService
+from backend.drift_detector import DriftDetector
+from backend.retraining_service import RetrainingService
 
 logger = get_logger("backend_daemon")
 
@@ -29,6 +31,10 @@ class BackendDaemon:
         # Initialize Inference & SHAP
         self.inference_service = InferenceService()
         self.shap_service = SHAPService()
+        
+        # Initialize Drift & Retraining
+        self.drift_detector = DriftDetector()
+        self.retraining_service = RetrainingService(self.inference_service, self.shap_service)
         
         ipc_config = config.get_ipc_config()
         self.ipc_server = IPCServer(ipc_config['address'], self.ring_buffer, 
@@ -74,6 +80,13 @@ class BackendDaemon:
                     f"Msg Received: {received} | "
                     f"Msg Dropped: {dropped}"
                 )
+                
+                # Check for Drift
+                if self.drift_detector.enabled:
+                    window = self.ring_buffer.window(self.drift_detector.window_size)
+                    drift_report = self.drift_detector.monitor(window)
+                    if drift_report.get('drift_detected'):
+                        self.retraining_service.trigger_retraining(drift_report)
 
     def start(self):
         logger.info("Starting Backend Daemon...")

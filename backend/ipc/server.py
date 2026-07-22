@@ -7,9 +7,11 @@ from backend.logger import get_logger
 logger = get_logger(__name__)
 
 class IPCServer:
-    def __init__(self, address: str, ring_buffer):
+    def __init__(self, address: str, ring_buffer, inference_service=None, shap_service=None):
         self.address = address
         self.ring_buffer = ring_buffer
+        self.inference_service = inference_service
+        self.shap_service = shap_service
         self.context = zmq.Context()
         self.socket = None
         self.running = False
@@ -64,6 +66,43 @@ class IPCServer:
                     }
                 elif command == 'latest_telemetry':
                     response = {"data": self.ring_buffer.latest()}
+                elif command == 'predict':
+                    if not self.inference_service or not self.shap_service:
+                        response = {"error": "Inference/SHAP services unavailable"}
+                    else:
+                        payload = req.get('payload')
+                        if not payload:
+                            # If no payload, grab latest from buffer
+                            payload = self.ring_buffer.latest()
+                            
+                        if not payload:
+                            response = {"error": "No telemetry data available for prediction"}
+                        else:
+                            # Extract features
+                            feature_keys = ['temperature_air', 'temperature_process', 'speed_rpm', 'torque', 'tool_wear']
+                            try:
+                                features = [float(payload[k]) for k in feature_keys]
+                                
+                                # 1. Predict (TensorRT)
+                                pred_res = self.inference_service.predict(features)
+                                
+                                if "error" in pred_res:
+                                    response = pred_res
+                                else:
+                                    # 2. Explain (SHAP)
+                                    shap_res = self.shap_service.explain(features, pred_res['label'])
+                                    
+                                    if "error" in shap_res:
+                                        response = pred_res # return prediction anyway
+                                        response['explanation_error'] = shap_res['error']
+                                    else:
+                                        # 3. Combine
+                                        response = {**pred_res, **shap_res}
+                                        
+                            except KeyError as e:
+                                response = {"error": f"Missing feature in payload: {e}"}
+                            except ValueError as e:
+                                response = {"error": f"Invalid feature value: {e}"}
                 else:
                     response = {"error": f"Unknown command: {command}"}
                     

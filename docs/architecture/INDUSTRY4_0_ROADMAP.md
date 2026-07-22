@@ -1,6 +1,6 @@
 # Industry 4.0 Transformation Roadmap
 **Project:** PSO Motor Health Monitoring System v4.0 (Enterprise Edition)
-**Authors:** Ravva Nagarjun, Bharath Kumar T K, Fasi Owaiz Ahmed, Ahas Kaushik
+**Authors:** Ravva Nagarjun
 **Timeline:** 6-12 Months
 **Objective:** Transform a standalone academic ML/CUDA project into a distributed, edge-native, real-time industrial predictive maintenance platform.
 

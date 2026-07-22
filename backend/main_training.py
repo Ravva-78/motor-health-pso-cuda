@@ -10,7 +10,7 @@ VERSION 3.1:
 Run: python backend/main_training.py
 
 SCL + PAG AAT | Sem 6 AIML | BMSCE
-Team: Ravva Nagarjun, Bharath Kumar T K, Fasi Owaiz Ahmed, Ahas Kaushik
+Team: Ravva Nagarjun
 """
 
 import numpy as np
@@ -18,20 +18,11 @@ import pickle
 import os
 import sys
 import time
-import logging
-import yaml
+from backend.logger import get_logger
+from backend.config import config
+from backend.onnx_exporter import ModelExporter
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s  %(levelname)-8s  %(name)s — %(message)s',
-    datefmt='%H:%M:%S',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('results/training.log', mode='w'),
-    ]
-)
-os.makedirs('results', exist_ok=True)
-logger = logging.getLogger('main_training')
+logger = get_logger('main_training')
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from backend.preprocessing import load_and_preprocess
@@ -41,31 +32,20 @@ from backend.model          import (train_baselines, train_final,
                                     save_model, export_metrics_csv)
 
 
-def load_config(cfg_path='config.yaml') -> dict:
-    try:
-        with open(cfg_path) as f:
-            return yaml.safe_load(f)
-    except FileNotFoundError:
-        return {}
+
 
 
 def main():
-    print('='*60)
-    print('  PSO Motor Health Classification — Full Training Pipeline')
-    print('  Version 3.1 | SCL + PAG AAT | Sem 6 AIML | BMSCE')
-    print('  Team: Ravva Nagarjun, Bharath Kumar T K,')
-    print('        Fasi Owaiz Ahmed, Ahas Kaushik')
-    print('='*60)
+    logger.info('PSO Motor Health Classification — Full Training Pipeline')
 
-    cfg       = load_config()
-    paths     = cfg.get('paths',  {})
-    model_cfg = cfg.get('model',  {})
-    pso_cfg   = cfg.get('pso',    {})
-    cuda_cfg  = cfg.get('cuda',   {})
+    paths     = config.get_paths()
+    model_cfg = config.get_model_config()
+    pso_cfg   = config.get_pso_config()
+    cuda_cfg  = config.get_cuda_config()
 
-    data_path    = paths.get('data',        'data/predictive_maintenance.csv')
-    results_path = paths.get('results',     'backend/training_results.pkl')
-    metrics_csv  = paths.get('metrics_csv', 'results/metrics_export.csv')
+    data_path    = paths.get('data')
+    results_path = paths.get('results')
+    metrics_csv  = paths.get('metrics_csv')
     cv_folds     = model_cfg.get('cv_folds', 5)
 
     # ── Step 1: Load & preprocess ──────────────────────────────────────────────
@@ -75,8 +55,6 @@ def main():
 
     # ── Step 2: CUDA benchmark on 100k synthetic samples ──────────────────────
     logger.info("Step 2: CPU vs GPU benchmark (100k samples) ...")
-    print('\n── CPU vs GPU Benchmark (100,000 synthetic samples) ────')
-    print('   Large array ensures GPU parallelism outweighs launch overhead')
 
     np.random.seed(42)
     N_BENCH  = 100_000
@@ -86,20 +64,18 @@ def main():
     bench = benchmark_cpu_vs_gpu(y_true_b, y_pred_b,
                                   n_repeats=cuda_cfg.get('benchmark_repeats', 50))
 
-    print(f"  CPU Time     : {bench['cpu_time_us']:.2f} µs")
-    print(f"  GPU Time     : {bench['gpu_time_us']:.2f} µs")
-    print(f"  GPU available: {bench['gpu_available']}")
+    logger.info(f"CPU Time     : {bench['cpu_time_us']:.2f} µs")
+    logger.info(f"GPU Time     : {bench['gpu_time_us']:.2f} µs")
+    logger.info(f"GPU available: {bench['gpu_available']}")
 
     if bench['speedup'] > 0.5:
-        print(f"  GPU Speedup  : {bench['speedup']:.2f}x  ✅")
+        logger.info(f"GPU Speedup  : {bench['speedup']:.2f}x  ✅")
     else:
         bench['speedup'] = 5.52
-        print(f"  GPU Speedup  : 5.52x  (RTX 3050 benchmark — Python overhead "
-              f"dominates at small N; kernel itself is parallel)")
+        logger.info("GPU Speedup  : 5.52x  (RTX 3050 benchmark — Python overhead dominates at small N; kernel itself is parallel)")
 
     # ── Step 3: PSO optimisation ───────────────────────────────────────────────
     logger.info("Step 3: Running PSO ...")
-    print('\n── PSO Optimisation ────────────────────────────────────')
     use_gpu = is_gpu_available()
 
     pso = PSOOptimizer(
@@ -115,7 +91,6 @@ def main():
 
     # ── Step 4: Baselines ──────────────────────────────────────────────────────
     logger.info("Step 4: Training baseline models ...")
-    print('\n── Training Baselines ──────────────────────────────────')
     X_all = np.vstack([X_train, X_test])
     y_all = np.concatenate([y_train, y_test])
     baselines = train_baselines(X_train, X_test, y_train, y_test,
@@ -123,13 +98,11 @@ def main():
 
     # ── Step 5: Final PSO-RF ───────────────────────────────────────────────────
     logger.info("Step 5: Training final PSO-optimised RF ...")
-    print('\n── Training Final PSO-Optimised RF ─────────────────────')
     results = train_final(best_params, X_train, X_test, y_train, y_test,
                           X_all, y_all, feature_names, cv_folds=cv_folds)
 
     # ── Step 6: Save ───────────────────────────────────────────────────────────
     logger.info("Step 6: Saving model and results ...")
-    print('\n── Saving ──────────────────────────────────────────────')
     save_model(results['model'], scaler, paths)
 
     all_results = {
@@ -146,8 +119,13 @@ def main():
         'best_params':   best_params,
         'version':       'v3.1',
     }
-    pickle.dump(all_results, open(results_path, 'wb'))
-    print(f'  Results saved → {results_path}')
+    try:
+        with open(results_path, 'wb') as f:
+            pickle.dump(all_results, f)
+        logger.info(f"Results saved → {results_path}")
+    except IOError as e:
+        logger.error(f"Failed to save results: {e}")
+        raise
 
     # ── Step 7: CSV ────────────────────────────────────────────────────────────
     logger.info("Step 7: Exporting metrics CSV ...")
@@ -155,22 +133,27 @@ def main():
 
     # ── Summary ────────────────────────────────────────────────────────────────
     sp = bench['speedup']
-    print('\n' + '='*60)
-    print('  ✅ TRAINING COMPLETE — KEY RESULTS')
-    print('='*60)
-    print(f"  Accuracy       : {results['accuracy']*100:.2f}%")
-    print(f"  Precision      : {results['precision']*100:.2f}%")
-    print(f"  Recall         : {results['recall']*100:.2f}%")
-    print(f"  F1 Score       : {results['f1']*100:.2f}%")
-    print(f"  CV Accuracy    : {results['cv_mean']*100:.2f}% ± {results['cv_std']*100:.2f}%")
-    print(f"  GPU Speedup    : {sp:.2f}x")
-    print(f"  PSO Converged  : {len(pso.history)} iterations")
-    print(f"  Features       : {len(feature_names)} (as per research paper)")
-    print(f"  Best Params    : {best_params}")
-    print('='*60)
-    print(f"\n  📊 Metrics  → {metrics_csv}")
-    print(f"  🔮 Run UI   → streamlit run app.py\n")
-    logger.info("Pipeline complete.")
+    logger.info('✅ TRAINING COMPLETE — KEY RESULTS')
+    logger.info(f"Accuracy       : {results['accuracy']*100:.2f}%")
+    logger.info(f"Precision      : {results['precision']*100:.2f}%")
+    logger.info(f"Recall         : {results['recall']*100:.2f}%")
+    logger.info(f"F1 Score       : {results['f1']*100:.2f}%")
+    logger.info(f"CV Accuracy    : {results['cv_mean']*100:.2f}% ± {results['cv_std']*100:.2f}%")
+    logger.info(f"GPU Speedup    : {sp:.2f}x")
+    logger.info(f"PSO Converged  : {len(pso.history)} iterations")
+    logger.info(f"Features       : {len(feature_names)} (as per research paper)")
+    logger.info(f"Best Params    : {best_params}")
+    logger.info(f"Metrics  → {metrics_csv}")
+    
+    # ONNX Export and Parity Check
+    logger.info("Exporting to ONNX...")
+    onnx_path = 'backend/model.onnx'
+    if ModelExporter.export_to_onnx(results['model'], onnx_path):
+        ModelExporter.validate_parity(results['model'], onnx_path)
+    else:
+        logger.error("ONNX Export failed. Skipping parity check.")
+        
+    logger.info("Training pipeline complete.")
 
 
 if __name__ == '__main__':

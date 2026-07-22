@@ -7,11 +7,13 @@ from backend.logger import get_logger
 logger = get_logger(__name__)
 
 class IPCServer:
-    def __init__(self, address: str, ring_buffer, inference_service=None, shap_service=None):
+    def __init__(self, address: str, ring_buffer, inference_service=None, shap_service=None, drift_detector=None, retraining_service=None):
         self.address = address
         self.ring_buffer = ring_buffer
         self.inference_service = inference_service
         self.shap_service = shap_service
+        self.drift_detector = drift_detector
+        self.retraining_service = retraining_service
         self.context = zmq.Context()
         self.socket = None
         self.running = False
@@ -66,6 +68,20 @@ class IPCServer:
                     }
                 elif command == 'latest_telemetry':
                     response = {"data": self.ring_buffer.latest()}
+                elif command == 'drift_status':
+                    if self.drift_detector:
+                        # Fetch latest score from drift detector
+                        response = self.drift_detector.get_latest_report()
+                    else:
+                        response = {"error": "Drift detector unavailable"}
+                elif command == 'retraining_status':
+                    if self.retraining_service:
+                        response = {
+                            "is_retraining": self.retraining_service.is_retraining(),
+                            "last_retraining_time": self.retraining_service.get_last_retraining_time()
+                        }
+                    else:
+                        response = {"error": "Retraining service unavailable"}
                 elif command == 'predict':
                     if not self.inference_service or not self.shap_service:
                         response = {"error": "Inference/SHAP services unavailable"}

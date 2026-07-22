@@ -10,7 +10,7 @@ VERSION 3.1:
 Run: python backend/main_training.py
 
 SCL + PAG AAT | Sem 6 AIML | BMSCE
-Team: Ravva Nagarjun, Bharath Kumar T K, Fasi Owaiz Ahmed, Ahas Kaushik
+Team: Ravva Nagarjun
 """
 
 import numpy as np

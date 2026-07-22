@@ -38,7 +38,8 @@ class BackendDaemon:
         
         ipc_config = config.get_ipc_config()
         self.ipc_server = IPCServer(ipc_config['address'], self.ring_buffer, 
-                                    self.inference_service, self.shap_service)
+                                    self.inference_service, self.shap_service,
+                                    self.drift_detector, self.retraining_service)
         
         # Setup signals
         try:

@@ -4,8 +4,8 @@ import re
 directory = r"c:\DEV\Projects\College_Projects\motor-health-pso-cuda\docs\architecture"
 
 replacements = {
-    r"\*\*Role:\*\*(.*)": "**Authors:** Ravva Nagarjun, Bharath Kumar T K, Fasi Owaiz Ahmed, Ahas Kaushik",
-    r"\*\*Document Owner:\*\*(.*)": "**Authors:** Ravva Nagarjun, Bharath Kumar T K, Fasi Owaiz Ahmed, Ahas Kaushik",
+    r"\*\*Role:\*\*(.*)": "**Authors:** Ravva Nagarjun",
+    r"\*\*Document Owner:\*\*(.*)": "**Authors:** Ravva Nagarjun",
     r"\*\*Reviewers:\*\*(.*)": "",
     r"\*\*Review Board:\*\*(.*)": "",
     r"\*\*Board Members:\*\*(\n\*(.*))*": "",
@@ -15,7 +15,7 @@ replacements = {
     r"\* \*Verdict:\*": "* *Rationale:*",
     r"Your current implementation is": "The initial implementation is",
     r"we need to completely rethink": "the architecture completely rethinks",
-    r"\*\*From:\*\* Principal AI Architect(.*)": "**Authors:** Ravva Nagarjun, Bharath Kumar T K, Fasi Owaiz Ahmed, Ahas Kaushik",
+    r"\*\*From:\*\* Principal AI Architect(.*)": "**Authors:** Ravva Nagarjun",
     r"\*\*To:\*\* R&D Engineering Team": "",
     r"\*\*Subject:\*\*": "**Topic:**",
 }

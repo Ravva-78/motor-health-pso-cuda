@@ -1,3 +1,4 @@
+import tensorrt
 import onnxruntime as rt
 import numpy as np
 from backend.logger import get_logger
@@ -43,8 +44,20 @@ class InferenceService:
             logger.info("Warm-up complete.")
             
         except Exception as e:
-            logger.error(f"Failed to initialize Inference Engine: {e}")
-            raise
+            logger.warning(f"Failed to initialize GPU Inference Engine ({e}). Falling back to CPU explicitly.")
+            try:
+                self.session = rt.InferenceSession(self.model_path, so, providers=['CPUExecutionProvider'])
+                self.input_name = self.session.get_inputs()[0].name
+                active_providers = self.session.get_providers()
+                logger.info(f"Inference Engine initialized successfully. Active providers: {active_providers}")
+                
+                logger.info("Running CPU warm-up inference...")
+                dummy_input = np.zeros((1, 5), dtype=np.float32)
+                self.session.run(None, {self.input_name: dummy_input})
+                logger.info("Warm-up complete.")
+            except Exception as cpu_e:
+                logger.error(f"Failed to initialize Inference Engine even on CPU: {cpu_e}")
+                raise
 
     def reload_model(self):
         logger.info("Hot-swapping Inference Engine...")

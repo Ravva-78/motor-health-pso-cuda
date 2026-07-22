@@ -16,7 +16,7 @@ Health Classes:
   2 = Critical — Heat Dissipation / Overstrain / Random
 
 SCL + PAG AAT | Sem 6 AIML | BMSCE
-Team: Ravva Nagarjun, Bharath Kumar T K, Fasi Owaiz Ahmed, Ahas Kaushik
+Team: Ravva Nagarjun
 """
 
 import numpy as np

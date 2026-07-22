@@ -28,6 +28,8 @@ mqtt:
   client_id: aeroforge_backend
   min_reconnect_delay: 1
   max_reconnect_delay: 120
+ring_buffer:
+  capacity: 4096
 paths:
   data:        data/predictive_maintenance.csv
   model:       backend/saved_model.pkl

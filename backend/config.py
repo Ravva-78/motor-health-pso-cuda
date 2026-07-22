@@ -70,6 +70,12 @@ class ConfigManager:
             'max_reconnect_delay': int(os.environ.get('MQTT_MAX_RECONNECT_DELAY', mqtt_cfg.get('max_reconnect_delay', 120))),
         }
 
+    def get_ring_buffer_config(self) -> dict:
+        rb_cfg = self.config.get('ring_buffer', {})
+        return {
+            'capacity': int(os.environ.get('RING_BUFFER_CAPACITY', rb_cfg.get('capacity', 4096)))
+        }
+
     def get_paths(self) -> dict:
         paths_cfg = self.config.get('paths', {})
         return {

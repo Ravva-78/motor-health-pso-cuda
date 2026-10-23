@@ -5,6 +5,16 @@ import sys
 import os
 import numpy as np
 
+# Ensure repository root is on sys.path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+# Reconfigure stdout for utf-8 if supported
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 API_URL = os.environ.get("API_URL", "http://localhost:8000")
 
 def measure_predict_latency(num_requests=100):
@@ -37,7 +47,7 @@ def measure_predict_latency(num_requests=100):
 
 def benchmark_direct_engine(num_iterations=200):
     """Fallback benchmark directly testing ONNX Inference Engine when API is offline."""
-    print("REST API offline — executing Direct In-Memory ONNX Inference Engine benchmark...")
+    print("REST API offline - executing Direct In-Memory ONNX Inference Engine benchmark...")
     from backend.inference_service import InferenceService
     
     engine = InferenceService()
@@ -68,12 +78,16 @@ if __name__ == "__main__":
     print("AeroForge Performance Benchmark")
     print("===================================")
     
-    # Try connecting to API
+    # Try connecting to API and verify predict endpoint is live
     api_online = False
     try:
         r = requests.get(f"{API_URL}/health", timeout=1)
         if r.status_code == 200:
-            api_online = True
+            test_p = requests.post(f"{API_URL}/predict", timeout=1)
+            if test_p.status_code == 200:
+                api_online = True
+            else:
+                print("Notice: REST API is up but backend daemon IPC is offline.")
     except Exception:
         pass
         
@@ -82,10 +96,11 @@ if __name__ == "__main__":
         print("Measuring REST API -> IPC -> Daemon /predict latency (100 sequential requests)...")
         res = measure_predict_latency(100)
     else:
-        print(f"Notice: REST API not running at {API_URL}.")
+        print(f"Executing Direct In-Memory ONNX Inference Engine benchmark...")
         res = benchmark_direct_engine(200)
+
     
-    if res:
+    if res and res["count"] > 0:
         print(f"Successful Runs:     {res['count']}")
         print(f"Failed Runs:         {res['errors']}")
         print(f"Mean Latency:        {res['mean_ms']:.3f} ms")
@@ -96,6 +111,9 @@ if __name__ == "__main__":
         print(f"Approx. Throughput:  {throughput:.1f} requests/sec (Single Thread)")
         if "provider" in res:
             print(f"Active Provider:     {res['provider']}")
+        sys.exit(0)
     else:
         print("All benchmark runs failed.")
+        sys.exit(1)
+
 

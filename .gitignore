@@ -17,9 +17,15 @@ env/
 .ipynb_checkpoints/
 *.ipynb
 
-# Training logs (regenerated on train)
+# Training and test artifacts
 results/training.log
 results/metrics_export.csv
+results/app.log
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.pytest_cache/
 
 # OS files
 .DS_Store

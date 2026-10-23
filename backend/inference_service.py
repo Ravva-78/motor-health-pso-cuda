@@ -1,4 +1,3 @@
-import tensorrt
 import onnxruntime as rt
 import numpy as np
 from backend.logger import get_logger

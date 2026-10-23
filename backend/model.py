@@ -7,9 +7,11 @@ VERSION 3.1:
   - class_weight='balanced' retained
   - XGBoost + K-Fold CV retained
 
-SCL + PAG AAT | Sem 6 AIML | BMSCE
-Team: Ravva Nagarjun
+AeroForge Autonomous Predictive Edge AI Platform
+Author: Ravva Nagarjun <ravvanagarjun@gmail.com> (GitHub: @Ravva-78)
+Architecture: Fault Classification & Model Evaluation
 """
+
 
 import numpy as np
 import pandas as pd

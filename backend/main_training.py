@@ -3,15 +3,17 @@ main_training.py — v3.1
 Full training pipeline.
 
 VERSION 3.1:
-  1. CUDA benchmark uses 100,000 synthetic samples → real GPU speedup shown
-  2. SMOTE on training set → better minority class recall
+  1. CUDA benchmark uses 100,000 synthetic samples -> real GPU speedup shown
+  2. SMOTE on training set -> better minority class recall
   3. 5 features retained (matching research paper)
 
 Run: python backend/main_training.py
 
-SCL + PAG AAT | Sem 6 AIML | BMSCE
-Team: Ravva Nagarjun
+AeroForge Autonomous Predictive Edge AI Platform
+Author: Ravva Nagarjun <ravvanagarjun@gmail.com> (GitHub: @Ravva-78)
+Architecture: End-to-End Edge Pipeline Training & CUDA Acceleration Benchmark
 """
+
 
 import numpy as np
 import pickle

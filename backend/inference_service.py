@@ -71,13 +71,24 @@ class InferenceService:
             'CUDAExecutionProvider',
             'CPUExecutionProvider'
         ]
+        new_session = None
+        input_name = None
         try:
             # Build new session first to not interrupt current inference requests
             new_session = rt.InferenceSession(self.model_path, so, providers=providers)
             input_name = new_session.get_inputs()[0].name
-            
+        except Exception as e:
+            logger.warning(f"GPU hot-swap provider initialization failed ({e}). Falling back to CPU.")
+            try:
+                new_session = rt.InferenceSession(self.model_path, so, providers=['CPUExecutionProvider'])
+                input_name = new_session.get_inputs()[0].name
+            except Exception as cpu_e:
+                logger.error(f"Failed to hot-swap Inference Engine even on CPU: {cpu_e}")
+                return False
+
+        try:
             # Warm-up new engine
-            logger.info("Running TensorRT warm-up inference for new engine...")
+            logger.info("Running warm-up inference for new engine...")
             dummy_input = np.zeros((1, 5), dtype=np.float32)
             new_session.run(None, {input_name: dummy_input})
             
@@ -87,8 +98,9 @@ class InferenceService:
             logger.info("Inference Engine hot-swap complete.")
             return True
         except Exception as e:
-            logger.error(f"Failed to hot-swap Inference Engine: {e}")
+            logger.error(f"Failed to complete hot-swap: {e}")
             return False
+
 
     def predict(self, features: list) -> dict:
         """

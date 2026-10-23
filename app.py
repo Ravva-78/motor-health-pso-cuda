@@ -1,12 +1,11 @@
 """
-app.py — PSO Motor Health Monitoring v3
-Dark Glassmorphism Edition
+app.py — AeroForge Autonomous Predictive Edge AI Platform
+Dark Glassmorphism Observability & Telemetry Dashboard
 
-Team:
-  Ravva Nagarjun    (1BM24AI414)
-
-SCL + PAG AAT | Sem 6 AIML | BMSCE Bengaluru
+Author & Maintainer:
+  Ravva Nagarjun (GitHub: @Ravva-78 <ravvanagarjun@gmail.com>)
 """
+
 
 import streamlit as st
 import warnings
@@ -257,8 +256,9 @@ def dark_layout(**kwargs):
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 TEAM = [
-    ("Ravva Nagarjun",    "1BM24AI414", "Lead"),
+    ("Ravva Nagarjun",    "Lead Architect", "Maintainer"),
 ]
+
 LABEL_NAMES = {0: 'Normal', 1: 'Warning', 2: 'Critical'}
 C_NORM  = '#4ade80'
 C_WARN  = '#fb923c'
@@ -360,11 +360,12 @@ with st.sidebar:
     st.markdown("""
     <hr/>
     <div style='text-align:center;font-size:0.67rem;color:#7c6fa0;line-height:2'>
-      Sem 6 AIML · BMSCE Bengaluru<br/>
-      SCL + PAG AAT · 2026<br/>
-      <span style='color:#a78bfa'>🌱 SDG 9 — Industry &amp; Innovation</span>
+      AeroForge Edge AI · Industrial IoT<br/>
+      High-Frequency Telemetry &amp; Autonomous Retraining<br/>
+      <span style='color:#a78bfa'>🌱 UN SDG 9 — Industry, Innovation &amp; Infrastructure</span>
     </div>
     """, unsafe_allow_html=True)
+
 
 # ── Tabs ──────────────────────────────────────────────────────────────────────
 t1,t2,t3,t4,t5,t6,t7,t8 = st.tabs([
@@ -1396,18 +1397,17 @@ Data Flow:
     st.success("💡 Presentation tip: Keep this tab open during demo — evaluators can see the actual CUDA kernel code, not just slides.")
 
     # Footer
-    st.divider()
     st.markdown("""
     <div style='text-align:center;padding:14px 0 4px;
                 font-size:0.76rem;color:#7c6fa0;line-height:2.2'>
       <span style='font-family:Space Grotesk;font-weight:600;color:#e8e0ff'>
-        PSO Motor Health Monitoring v3
+        AeroForge Predictive Edge Platform
       </span><br/>
-      Ravva Nagarjun<br/>
-      Sem 6 AIML &nbsp;·&nbsp; BMSCE Bengaluru &nbsp;·&nbsp; SCL + PAG AAT &nbsp;·&nbsp; 2026<br/>
+      Ravva Nagarjun &nbsp;·&nbsp; Autonomous Predictive Maintenance Engine &nbsp;·&nbsp; 2026<br/>
       <span style='color:#a78bfa'>🌱 UN SDG 9 — Industry, Innovation and Infrastructure</span>
     </div>
     """, unsafe_allow_html=True)
+
 
 
 # ══════════════════════════════════════════════════════════════════════════════

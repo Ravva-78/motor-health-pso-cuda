@@ -1,47 +1,67 @@
-# Python
+# Python artifacts
 __pycache__/
 *.py[cod]
+*$py.class
 *.pyo
 *.pyd
 .Python
 *.egg-info/
 dist/
 build/
+eggs/
+.eggs/
 
 # Virtual environments
 venv/
 env/
+ENV/
 .env
+.venv
 
-# Jupyter
+# Jupyter notebooks
 .ipynb_checkpoints/
 *.ipynb
 
-# Training and test artifacts
-results/training.log
-results/metrics_export.csv
-results/app.log
+# Test & coverage artifacts
 .coverage
 .coverage.*
 coverage.xml
 htmlcov/
 .pytest_cache/
+.ruff_cache/
 
-# OS files
+# Runtime caches & engine checkpoints
+backend/.trt_cache/
+*.tmp
+*.log
+results/*.log
+results/app.log
+results/training.log
+results/metrics_export.csv
+
+# OS specific files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 desktop.ini
 
-# IDE
+# IDE & editors
 .vscode/
 .idea/
 *.suo
 *.user
+*.swp
+*.swo
 
 # CUDA build artifacts
 *.o
 *.ptx
 *.cubin
+*.fatbin
 
-# Large data (keep dataset since it's needed)
-# data/predictive_maintenance.csv  ← KEEP THIS
+# Dataset preservation (keep predictive_maintenance.csv)
+# !data/predictive_maintenance.csv

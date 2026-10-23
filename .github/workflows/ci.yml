@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: AeroForge Production CI/CD Pipeline
 
 on:
   push:
@@ -8,10 +8,46 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  lint:
+    name: Code Quality & Syntax Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Linting Tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 black
+
+      - name: Flake8 Syntax & Critical Error Audit
+        run: |
+          # Stop build on Python syntax errors or undefined symbols
+          flake8 --count --select=E9,F63,F7,F82 --show-source --statistics backend/ scripts/ tests/
+          # Informative check for PEP-8 compliance
+          flake8 --count --max-line-length=127 --statistics --exit-zero backend/ scripts/ tests/
+
+      - name: Check Code Formatting
+        run: |
+          black --check --diff --line-length=120 backend/ scripts/ tests/ || true
+
   test:
+    name: Test Matrix (Python ${{ matrix.python-version }})
+    needs: lint
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.10", "3.11"]
 
@@ -28,19 +64,28 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential
+          sudo apt-get install -y build-essential libzmq3-dev
 
       - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Tests with Pytest
+      - name: Run Full Production Test Suite
         run: |
           python -m pytest tests/ -v --cov=backend --cov-report=xml --cov-report=term-missing
 
-      - name: Upload Coverage Report
+      - name: Execute End-to-End Quickstart Demo Verification
+        run: |
+          python scripts/quickstart_demo.py --dry-run
+
+      - name: Verify Performance Benchmark Standalone Execution
+        run: |
+          python scripts/benchmark.py
+
+      - name: Upload Test Coverage Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-report-${{ matrix.python-version }}
+          name: coverage-report-python-${{ matrix.python-version }}
           path: coverage.xml
+          if-no-files-found: warn

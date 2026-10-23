@@ -15,9 +15,11 @@ Health Classes:
   1 = Warning  — Power Failure / Tool Wear Failure
   2 = Critical — Heat Dissipation / Overstrain / Random
 
-SCL + PAG AAT | Sem 6 AIML | BMSCE
-Team: Ravva Nagarjun
+AeroForge Autonomous Predictive Edge AI Platform
+Author: Ravva Nagarjun <ravvanagarjun@gmail.com> (GitHub: @Ravva-78)
+Architecture: High-Frequency Multi-Variate Telemetry Ingestion & Preprocessing
 """
+
 
 import numpy as np
 import pandas as pd

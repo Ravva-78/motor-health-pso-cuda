@@ -14,31 +14,36 @@ import numpy as np
 import time
 
 # ── Try importing numba CUDA ───────────────────────────────────────────────────
+_CUDA_AVAILABLE = False
+_GPU_AVAILABLE  = False
+_accuracy_kernel = None
+
 try:
     from numba import cuda
-    _CUDA_AVAILABLE = True
-    # Quick device check
-    try:
+    if cuda.is_available():
         cuda.select_device(0)
+        _CUDA_AVAILABLE = True
         _GPU_AVAILABLE = True
-    except Exception:
-        _GPU_AVAILABLE = False
-except ImportError:
+except Exception:
     _CUDA_AVAILABLE = False
-    _GPU_AVAILABLE  = False
+    _GPU_AVAILABLE = False
 
 
 # ── CUDA Kernel definition ─────────────────────────────────────────────────────
-if _CUDA_AVAILABLE:
-    @cuda.jit
-    def _accuracy_kernel(y_true, y_pred, correct):
-        """
-        CUDA kernel — 1 thread per sample.
-        correct[idx] = 1 if y_pred[idx] == y_true[idx] else 0
-        """
-        idx = cuda.grid(1)
-        if idx < y_true.size:
-            correct[idx] = 1 if y_true[idx] == y_pred[idx] else 0
+if _GPU_AVAILABLE:
+    try:
+        @cuda.jit
+        def _accuracy_kernel(y_true, y_pred, correct):
+            """
+            CUDA kernel — 1 thread per sample.
+            correct[idx] = 1 if y_pred[idx] == y_true[idx] else 0
+            """
+            idx = cuda.grid(1)
+            if idx < y_true.size:
+                correct[idx] = 1 if y_true[idx] == y_pred[idx] else 0
+    except Exception:
+        _GPU_AVAILABLE = False
+        _accuracy_kernel = None
 
 
 def gpu_accuracy(y_true: np.ndarray, y_pred: np.ndarray) -> float:
@@ -55,7 +60,7 @@ def gpu_accuracy(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     -------
     accuracy : float in [0, 1]
     """
-    if not _GPU_AVAILABLE:
+    if not _GPU_AVAILABLE or _accuracy_kernel is None:
         # CPU fallback
         return float(np.mean(y_true == y_pred))
 

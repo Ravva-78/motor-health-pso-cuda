@@ -19,5 +19,6 @@ skl2onnx>=1.15.0
 # onnxruntime-gpu>=1.15.0  # Optional: install separately for CUDA/TensorRT acceleration
 shap>=0.44.0
 fastapi>=0.100.0
+httpx>=0.24.0
 uvicorn>=0.20.0
 requests>=2.31.0

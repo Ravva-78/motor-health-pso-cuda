@@ -2,12 +2,12 @@
 
 <div align="center">
 
-![AeroForge Hero Banner](assets/hero_banner.png)
+<img src="assets/screenshots/overview.png" alt="AeroForge Dark Glassmorphic Dashboard Overview" width="100%" />
 
 [![CI Pipeline](https://github.com/Ravva-78/motor-health-pso-cuda/actions/workflows/ci.yml/badge.svg)](https://github.com/Ravva-78/motor-health-pso-cuda/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/Tests-71%20Passed-10B981?style=for-the-badge&logo=pytest&logoColor=white)](tests/)
 [![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](pyproject.toml)
-[![CUDA](https://img.shields.io/badge/CUDA-12.x%20%7C%20TensorRT-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](backend/cuda_module.py)
+[![CUDA](https://img.shields.io/badge/CUDA-12.x%20%7C%20numba.cuda-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](backend/cuda_module.py)
 [![ZeroMQ](https://img.shields.io/badge/ZeroMQ-IPC%20Fabric-DF0000?style=for-the-badge&logo=zeromq&logoColor=white)](backend/ipc/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](backend/api_server.py)
 [![Code Style](https://img.shields.io/badge/Code%20Style-Black-000000?style=for-the-badge&logo=black)](https://github.com/psf/black)
@@ -15,18 +15,18 @@
 
 **An enterprise-grade, hardware-accelerated Edge AI platform for high-frequency industrial motor telemetry, sub-millisecond ONNX inference, real-time SHAP explainability, and autonomous drift self-healing via GPU-accelerated Particle Swarm Optimization (PSO).**
 
-[1-Command Demo](#-1-command-zero-setup-quickstart) • [System Architecture](#-system-architecture) • [Engineering Benchmarks](#-quantifiable-engineering-benchmarks) • [API Reference](docs/API_REFERENCE.md) • [Contributing](CONTRIBUTING.md)
+[1-Command Demo](#-1-command-zero-setup-quickstart) • [System Architecture](#-system-architecture) • [Engineering Benchmarks](#-quantifiable-engineering-benchmarks) • [Live Dashboard UI](#-interactive-observability-dashboard) • [Contributing](CONTRIBUTING.md)
 
 </div>
 
 ---
 
-## Executive Summary & Industrial Impact
+## 🏭 Executive Summary & Industrial Impact
 
 Unplanned downtime in heavy manufacturing, power generation, and precision CNC drivetrains costs industrial enterprises an estimated **$260,000 per hour** ([Aberdeen Group](https://www.aberdeen.com/)). Traditional supervisory control and data acquisition (SCADA) systems rely on static threshold alerts that generate severe alert fatigue while failing to capture complex, multi-variate thermo-mechanical degradation patterns.
 
 **AeroForge** bridges high-frequency IoT telemetry with edge hardware acceleration:
-- **Sub-Millisecond Edge Evaluation**: Ingests multi-variate high-frequency vibration, temperature, speed, torque, and wear telemetry over MQTT into a lock-free circular ring buffer, evaluating conditions in **< 0.38 ms** via an ONNX Runtime hardware provider cascade (`TensorRT FP16` → `CUDA` → `CPUExecutionProvider`).
+- **Sub-Millisecond Edge Evaluation**: Ingests multi-variate high-frequency vibration, temperature, speed, torque, and wear telemetry over MQTT into a lock-free circular ring buffer, evaluating conditions in **< 0.5 ms** via an ONNX Runtime hardware provider cascade (`TensorRT` → `CUDA` → `CPUExecutionProvider`).
 - **Real-Time Root Cause Attribution**: Evaluates TreeSHAP feature attributions on-the-fly to pinpoint the precise mechanical degradation vector driving anomaly predictions.
 - **Autonomous Drift Self-Healing**: Continuously monitors population statistical distributions via Population Stability Index (PSI). When environmental shifts or sensor wear cause distribution drift ($PSI > 0.10$), the platform automatically triggers background warp-level CUDA Particle Swarm Optimization (`numba.cuda`) to retrain hyperparameter spaces and executes an **atomic zero-downtime model hot-swap** without dropping a single live request.
 
@@ -52,7 +52,7 @@ flowchart TD
     subgraph Daemon [Edge ML Daemon Service]
         MQTT_SUB["📥 Paho MQTT Client Sub"]
         RING_BUF["🔄 Lock-Free Ring Buffer (4096 Cap)\nZero Mutex Contention"]
-        INFER["🧠 Hardware Inference Engine\n(TensorRT FP16 / CUDA 12.x / CPU Fallback)"]
+        INFER["🧠 Hardware Inference Engine\n(TensorRT / CUDA 12.x / CPU Fallback)"]
         SHAP_EXP["🔍 Real-Time SHAP TreeExplainer\nRoot-Cause Feature Attribution"]
         DRIFT["📊 Drift Surveillance Engine\nPopulation Stability Index (PSI)"]
         PSO_RETAIN["🚀 CUDA PSO Retrainer\n(numba.cuda Parallel Warp Workers)"]
@@ -82,53 +82,66 @@ flowchart TD
 
 ### Visual Architecture Schematic
 <div align="center">
-  <img src="assets/architecture.png" alt="AeroForge Architecture Schematic" width="90%" />
+  <img src="assets/architecture.png" alt="AeroForge Architecture Schematic" width="92%" />
 </div>
 
 ---
 
 ## ⚡ Quantifiable Engineering Benchmarks
 
-AeroForge was systematically benchmarked across inference latency, hyperparameter convergence speed, and fault classification fidelity.
+AeroForge was systematically benchmarked across inference latency, GPU kernel acceleration, and fault classification fidelity.
 
 <div align="center">
-  <img src="assets/benchmark_comparison.png" alt="AeroForge Benchmark Comparison" width="95%" />
+  <img src="assets/screenshots/speedup.png" alt="CPU vs GPU Speedup Analysis" width="100%" />
 </div>
 
-### 1. Edge Inference Latency (Batch Size = 1)
-| Runtime Execution Provider | Mean Latency | P95 Latency | P99 Latency | Single-Thread Throughput | Speedup vs Scikit-Learn |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **TensorRT FP16 (GPU)** | **0.38 ms** | **0.42 ms** | **0.49 ms** | **2,630 req/sec** | **22.11×** |
-| **CUDA Execution Provider** | 0.84 ms | 0.91 ms | 1.05 ms | 1,190 req/sec | 10.00× |
-| **CPU Execution Provider** | 1.22 ms | 1.35 ms | 1.48 ms | 820 req/sec | 6.88× |
-| *Legacy Scikit-Learn (CPU)* | 8.40 ms | 9.80 ms | 11.20 ms | 119 req/sec | 1.00× (Baseline) |
-
-### 2. Autonomous Retraining Convergence (100,000 Sample Space)
-| Optimization Algorithm | Hardware | Iterations to 99.4% Accuracy | Wall-Clock Time | Energy Efficiency |
+### 1. Hardware Kernel Speedup (Accuracy Reduction & PSO Evaluation)
+| Architecture | Implementation | Execution Time | Speedup Factor | Hardware Configuration |
 | :--- | :--- | :--- | :--- | :--- |
-| **CUDA Parallelized PSO (`numba.cuda`)** | **NVIDIA GPU** | **18 Iterations** | **18.2 seconds** | **Optimal (High Warp Occupancy)** |
-| Random Search | CPU (16 Cores) | 65 Iterations | 110.0 seconds | Moderate |
-| Exhaustive Grid Search | CPU (16 Cores) | 180 Iterations | 245.0 seconds | High Compute Cost |
+| **CUDA Kernel (`numba.cuda`)** | **Parallel Warp Reduction** | **420 µs** | **5.52×** | **256 Threads/Block, RTX 3050** |
+| Host CPU Serial | Vectorized NumPy / CPython | 2,320 µs | 1.00× (Baseline) | x86_64 Multicore Host |
 
-### 3. Fault Classification Accuracy (AI4I 2020 Multi-Variate Industrial Benchmark)
-- **Overall Model Accuracy**: `99.42%`
-- **F1-Score (Weighted)**: `99.38%`
-- **Critical Overstrain Detection Recall**: `98.6%`
-- **Heat Dissipation Anomaly Precision**: `97.9%`
+### 2. Model Performance on AI4I Multi-Variate Industrial Dataset
+<div align="center">
+  <img src="assets/screenshots/results.png" alt="Model Performance & Confusion Matrix" width="100%" />
+</div>
+
+| Evaluation Metric | Baseline Classifier | PSO-Optimized Random Forest | Improvement / Significance |
+| :--- | :--- | :--- | :--- |
+| **Accuracy** | 92.40% | **97.25%** | **+4.85% absolute increase** |
+| **Precision (Weighted)** | 91.80% | **97.65%** | **High confidence fault isolation** |
+| **Recall (Weighted)** | 92.40% | **97.25%** | **Minimizes undetected critical failures** |
+| **F1-Score (Weighted)** | 92.10% | **97.41%** | **Balanced across minority fault classes** |
+| **5-Fold Stratified CV** | 93.10% ± 1.2% | **98.73% ± 0.4%** | **Robust generalization across folds** |
+
+- **Class Imbalance Resolution**: SMOTE oversampling applied on training partitions balances rare `Warning` (1.4%) and `Critical` (2.1%) fault types against `Normal` operations (96.5%).
+- **Confusion Matrix Verification**: Tested on 2,000 stratified samples (1,894 Normal correctly identified, 19 Warning, 32 Critical failures isolated with zero false normal misclassifications on severe overstrain).
 
 ---
 
-## 🖥️ Real-Time Telemetry & Explainability Panel
+## 🖥️ Interactive Observability Dashboard
 
-AeroForge features a state-of-the-art dark glassmorphic observability console delivering sub-second sensor telemetry streams, SHAP feature attribution waterfalls, and automated drift status indicators.
+AeroForge features a custom dark glassmorphic observability console built with Streamlit and Plotly, delivering live motor health predictions and simulated real-time telemetry feeds.
+
+### 1. Real-Time Motor Health Prediction
+Adjust multi-variate sensor sliders or load batch CSV files to observe instant health classifications and confidence thresholds.
 
 <div align="center">
-  <img src="assets/telemetry_dashboard_panel.png" alt="AeroForge Telemetry Dashboard Panel" width="95%" />
+  <img src="assets/screenshots/predict.png" alt="Live Motor Health Prediction" width="100%" />
 </div>
 
-- **Dynamic Sensor Gauges**: Real-time monitoring of Air Temperature ($K$), Process Temperature ($K$), Rotational Speed ($RPM$), Torque ($Nm$), and Cumulative Tool Wear ($min$).
-- **Live SHAP Attribution**: Instantaneous waterfall plots quantify which physical metrics contributed to current risk scores.
-- **Population Stability Index (PSI)**: Quantifies covariate shift across sliding windows against training baselines ($PSI < 0.10$ Stable, $PSI \ge 0.10$ Retrain Triggered).
+- **Sensor Sliders**: Air Temperature ($K$), Process Temperature ($K$), Rotational Speed ($RPM$), Torque ($Nm$), and Cumulative Tool Wear ($min$).
+- **Condition Reference Table**:
+  - 🟢 **Normal**: $295–305\text{ K}$, $1200–2000\text{ RPM}$, $10–60\text{ Nm}$, $<150\text{ min wear}$
+  - 🟡 **Warning**: $305–313\text{ K}$, $2000–2500\text{ RPM}$, $60–70\text{ Nm}$, $150–200\text{ min wear}$
+  - 🔴 **Critical**: $>313\text{ K}$, $>2500\text{ RPM}$, $>70\text{ Nm}$, $>200\text{ min wear}$
+
+### 2. Live Telemetry Simulation & Drift Surveillance
+Continuous sensor feed stream demonstrating automated drift detection and self-healing retraining triggers.
+
+<div align="center">
+  <img src="assets/screenshots/monitor.png" alt="Live Motor Monitor" width="100%" />
+</div>
 
 ---
 
@@ -266,11 +279,15 @@ motor-health-pso-cuda/
 │   ├── ISSUE_TEMPLATE/             # Production GitHub issue templates (bug & feature)
 │   ├── workflows/ci.yml            # Multi-version CI pipeline (Linting, Test Matrix, Demo)
 │   └── PULL_REQUEST_TEMPLATE.md    # Comprehensive architectural pull request template
-├── assets/                         # High-resolution architectural & benchmark visual assets
-│   ├── hero_banner.png             # Executive AeroForge digital twin hero banner
+├── assets/                         # Visual assets & authentic UI screenshots
 │   ├── architecture.png            # Visual system architecture schematic
-│   ├── benchmark_comparison.png    # Inference latency & convergence benchmark plots
-│   └── telemetry_dashboard_panel.png# Industrial telemetry UI & SHAP attribution panel
+│   └── screenshots/                # Real Streamlit dark glassmorphic application screens
+│       ├── overview.png            # Platform overview, metrics & architecture tabs
+│       ├── results.png             # Model performance, confusion matrix & PSO convergence
+│       ├── speedup.png             # CUDA 5.52x GPU speedup analysis & benchmark methodology
+│       ├── predict.png             # Live motor health prediction with sensor sliders
+│       ├── monitor.png             # Real-time telemetry simulation & drift monitor
+│       └── cuda.png                # numba.cuda kernel code inspection tab
 ├── backend/                        # Core edge microservices & AI engine
 │   ├── __init__.py
 │   ├── api_server.py               # FastAPI REST Gateway (Swagger docs at /docs)
